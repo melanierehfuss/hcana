@@ -90,6 +90,8 @@ private:
    Int_t bit30;
    Int_t newbit;
    Int_t next_quartet[4];
+   std::vector <int> DAQ_pred_helicity; // predicted helicity according to initial DAQ reported values
+   std::vector <int> DAQ_act_helicity; // actual helicity
    std::vector<UInt_t*> fDelayedEvents;
    std::set<UInt_t> fRocSet;
 

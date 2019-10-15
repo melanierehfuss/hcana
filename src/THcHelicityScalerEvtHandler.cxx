@@ -261,15 +261,19 @@ Int_t THcHelicityScalerEvtHandler::AnalyzeBuffer(UInt_t* rdata, Bool_t onlysync)
 	
 	Int_t nevents = (banklen-2)/32;
 	//cout << "# of helicity events in bank:" << " " << nevents << endl;
+	if (nevents > 100) {
+		cout << "Error! Beam off for too long" << endl;	
+	}
 	
 	Int_t DAQ_rep_hel_windows[nevents];
 		
 	Int_t quartet_1[4] = {1,0,0,1}; // + - - + quartet 
 	Int_t quartet_2[4] = {0,1,1,0}; // - + + - quartet
 
-	for (Int_t iev = 1; iev <= nevents; iev++) {  // find number of helicity events in each bank
+
+	for (Int_t iev = 0; iev < nevents; iev++) {  // find number of helicity events in each bank
 		Int_t nentries = 32*iev+2;
-		DAQ_rep_hel_windows[iev] = ((((p[nentries-33]>>28) & 0xff) >> 2) & 1);
+		DAQ_rep_hel_windows[iev] = ((((p[nentries-1]>>28) & 0xff) >> 2) & 1);
 		//std::cout << "DAQ Reported Helicity:" << " " << DAQ_rep_hel_windows[iev];
 		DAQ_rep_hel_bank.push_back(DAQ_rep_hel_windows[iev]);
 		std::cout << endl;
@@ -295,6 +299,7 @@ Int_t THcHelicityScalerEvtHandler::AnalyzeBuffer(UInt_t* rdata, Bool_t onlysync)
 
 	// begin incrementing where quartet is found (ex. i = 0 corresponds to scaler event = 0)
 	// 120 is the number of windows needed to create the 30-bit random seed
+	// change i to find beginning of quartet phase. i = 0 to 120, i = 1 to 121, i = 2 to 122, etc.
 	for (Int_t i = 0; i<120; i=i+4) { 
 		//cout << "DAQ Reported Helicity at window " << i << ": " << DAQ_rep_hel_bank[i] << endl;
 		random_seed.insert(random_seed.begin(), DAQ_rep_hel_bank[i]); 
@@ -303,8 +308,8 @@ Int_t THcHelicityScalerEvtHandler::AnalyzeBuffer(UInt_t* rdata, Bool_t onlysync)
 		// ("event" 1 - first window of very first quartet)	
 	}
 	
-		
-if (DAQ_rep_hel_bank.size() >= 120 && eventnumbers.size() >= 120) {
+//change bank.size() according to quartet phase beginning. Ex. >= 120 if it starts at 0, 121 if 1, 122 if 2, etc.	
+if (DAQ_rep_hel_bank.size() >= 120 ) {
 
 	for (Int_t i = 0; i < 30; i++){
 	//cout << "scaler event: " << i << " random seed: " << random_seed[i] << endl;
@@ -340,7 +345,7 @@ if (DAQ_rep_hel_bank.size() >= 120 && eventnumbers.size() >= 120) {
   
 
 	// upper limit corresponds to # of quartets there are in the run
-	for (Int_t i = 0; i < 180; i++) {
+	for (Int_t i = 0; i < 1000; i++) {
 
 	std::rotate(random_seed.begin(), random_seed.begin() + 29, random_seed.begin() + 30);  // right-shift  
 
@@ -386,7 +391,7 @@ if (DAQ_rep_hel_bank.size() >= 120 && eventnumbers.size() >= 120) {
 
 	// compare reported, preicted, and actual scaler helicities
 	for (Int_t i = 120; i < DAQ_rep_hel_bank.size(); i++){
-	cout << "event number: " << eventnumbers[i] << " scaler event: " << i << " " << "reported helicity: " << DAQ_rep_hel_bank[i] << " " << "predicted helicity: " << DAQ_pred_hel_bank[i-120] << " " << "actual helicity: " << DAQ_act_hel_bank[i-120] << endl;
+	cout << "scaler event: " << i << " " << "reported helicity: " << DAQ_rep_hel_bank[i] << " " << "predicted helicity: " << DAQ_pred_hel_bank[i-120] << " " << "actual helicity: " << DAQ_act_hel_bank[i-120] << endl;
 	}
 
 
@@ -414,8 +419,7 @@ if (eventnumbers.size() > 120) {
 			}
 	}
 
-}
-	
+}	
 	//**************************************************************************************************
     }
 
