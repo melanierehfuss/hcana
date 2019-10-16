@@ -74,9 +74,12 @@ private:
    std::vector <int> eventnumbers; // running storage of event numbers
    Int_t nevents; // # of helicity windows in each helicity bank
    Int_t DAQ_rep_hel_windows(Int_t nevents); // value of helicity in each window of DAQ reported helicity
+   Int_t DAQ_rep_quad_phase(Int_t nevents); // quad phase. if on, then that event is the last event of a quartet
+   Int_t begin_quartet;
    std::vector <int> DAQ_rep_hel_bank; // running storage of DAQ reported helicity values
    std::vector <int> DAQ_pred_hel_bank; // running storage of DAQ predicted helicity values
    std::vector <int> DAQ_act_hel_bank; // running storage of DAQ actual helicity values
+   std::vector <int> DAQ_rep_quad_phase_bank; // running storage of DAQ reported quad phase (1 means the end of a quartet)
    std::vector <Int_t> random_seed; // random seed for 30-bit (120 windows) shift-register
    Int_t pos_accu_scaler;
    Int_t neg_accu_scaler;
