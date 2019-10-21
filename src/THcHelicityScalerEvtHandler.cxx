@@ -398,7 +398,7 @@ if (DAQ_rep_hel_bank.size() >= begin_quartet + 120 ) {
 
 	// compare reported, preicted, and actual scaler helicities
 	for (Int_t i = begin_quartet + 120; i < DAQ_rep_hel_bank.size(); i++){
-	cout << "scaler event: " << i << " " << "reported helicity: " << DAQ_rep_hel_bank[i] << " " << "predicted helicity: " << DAQ_pred_hel_bank[i-begin_quartet-120] << " " << "actual helicity: " << DAQ_act_hel_bank[i-begin_quartet-120] << endl;
+//	cout << "scaler event: " << i << " " << "reported helicity: " << DAQ_rep_hel_bank[i] << " " << "predicted helicity: " << DAQ_pred_hel_bank[i-begin_quartet-120] << " " << "actual helicity: " << DAQ_act_hel_bank[i-begin_quartet-120] << endl;
 	}
 
 
@@ -419,25 +419,39 @@ if (DAQ_rep_hel_bank.size() >= begin_quartet + 120) {
 	}
 
 
-
-	for (Int_t i=1; i <= 32; i++) {
-//	for (Int_t i=nentries-33+(iev-1); i <= (32*iev+2)-2+(iev-1); i++) {
+	for (Int_t iev = 1; iev <= nevents; iev++) {  // find number of helicity events in each bank
+		Int_t nentries = 32*iev+2;
+		if (nentries <= 2){
+		for (Int_t i=nentries-33+(iev-1); i <= (32*iev+2)-2+(iev-1); i++) {
 			if (actual_helicity[actual_helicity.size()-1] == 0) {
 			neg_accu_scaler[i] = p[i]&0xffffff;
-			cout << dec << i << " p[i] " << hex << p[i] << " neg_accu_scaler: " << neg_accu_scaler[i] << endl;
+			cout << dec << i << " p[i] " << hex << p[i] << " neg_accu_scaler: " << dec << neg_accu_scaler[i] << endl;
 			negative_hel_scalers.push_back(p[i]&0xffffff);
 			}
 			else if (actual_helicity[actual_helicity.size()-1] == 1) {
 			pos_accu_scaler[i] = p[i]&0xffffff;
-			cout << dec << i << " p[i] " << hex << p[i] << " pos_accu_scaler: " << pos_accu_scaler[i] << endl;
+			cout << dec << i << " p[i] " << hex << p[i] << " pos_accu_scaler: " << dec << pos_accu_scaler[i] << endl;
+			positive_hel_scalers.push_back(p[i]&0xffffff);
+			}
+	}
+	}
+		else {
+		for (Int_t i=nentries-33+(iev-1); i <= (32*iev+2)-2; i++) {  // ROCs with nevents >= 3 have two fewer channels
+			if (actual_helicity[actual_helicity.size()-1] == 0) {
+			neg_accu_scaler[i] = p[i]&0xffffff;
+			cout << dec << i << " p[i] " << hex << p[i] << " neg_accu_scaler: " << dec << neg_accu_scaler[i] << endl;
+			negative_hel_scalers.push_back(p[i]&0xffffff);
+			}
+			else if (actual_helicity[actual_helicity.size()-1] == 1) {
+			pos_accu_scaler[i] = p[i]&0xffffff;
+			cout << dec << i << " p[i] " << hex << p[i] << " pos_accu_scaler: " << dec << pos_accu_scaler[i] << endl;
 			positive_hel_scalers.push_back(p[i]&0xffffff);
 			}
 	}
 
+	}
 
-//        }
-
-
+      }
 
 }
 
