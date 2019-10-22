@@ -327,29 +327,29 @@ Int_t THcHelicityScalerEvtHandler::AnalyzeBuffer(UInt_t* rdata, Bool_t onlysync)
 	// 120 is the number of windows needed to create the 30-bit random seed
 	for (Int_t i = begin_quartet; i<120 + begin_quartet; i=i+4) { 
 		//cout << "DAQ Reported Helicity at window " << i << ": " << DAQ_rep_hel_bank[i] << endl;
-		random_seed.insert(random_seed.begin(), DAQ_rep_hel_bank[i]); 
+		random_seed_pred.insert(random_seed_pred.begin(), DAQ_rep_hel_bank[i]); 
 		// last event is first element in vector. So the beginning contains 
 		// bit 30 ("event" 30) and the last contains bit 1 
 		// ("event" 1 - first window of very first quartet)	
 	}
 	
 		
-if (DAQ_rep_hel_bank.size() >= 120) {
+if (DAQ_rep_hel_bank.size() >= 120 + begin_quartet) {
 
 	for (Int_t i = 0; i < 30; i++){
 	//cout << "scaler event: " << i << " random seed: " << random_seed[i] << endl;
 	}
 
-	bit1 = random_seed[0]; // corresponds to last scaler event
-	bit7 = random_seed[6];
-	bit28 = random_seed[27];
-	bit29 = random_seed[28];
-	bit30 = random_seed[29]; // corresponds to first scaler event
+	bit1_pred = random_seed_pred[0]; // corresponds to last scaler event
+	bit7_pred = random_seed_pred[6];
+	bit28_pred = random_seed_pred[27];
+	bit29_pred = random_seed_pred[28];
+	bit30_pred = random_seed_pred[29]; // corresponds to first scaler event
 
-	Int_t newbit = bit30 ^ bit29 ^ bit28 ^ bit7;
+	Int_t newbit_pred = bit30_pred ^ bit29_pred ^ bit28_pred ^ bit7_pred;
 	//cout << "new bit: " << newbit << endl;
 	
-	if (newbit == 1) {
+	if (newbit_pred == 1) {
 	Int_t next_quartet[4] = {1,0,0,1};
 	cout << "pred helicity: " << next_quartet[0] << next_quartet[1] << next_quartet[2] << next_quartet[3] << endl;
 	for (Int_t i = 0; i < 4; i++) {
@@ -357,7 +357,7 @@ if (DAQ_rep_hel_bank.size() >= 120) {
  	}
 	}
 
-	else if (newbit ==0) {
+	else if (newbit_pred ==0) {
 	Int_t next_quartet[4] = {0,1,1,0};
 	cout << "pred helicity: " << next_quartet[0] << next_quartet[1] << next_quartet[2] << next_quartet[3] << endl;
 	for (Int_t i = 0; i < 4; i++) {
@@ -372,39 +372,49 @@ if (DAQ_rep_hel_bank.size() >= 120) {
   
 
 	// upper limit corresponds to # of quartets there are in the run
-	for (Int_t i = 0; i < 1000; i++) {
+	for (Int_t i = 0; i < nevents; i++) {
 
-	std::rotate(random_seed.begin(), random_seed.begin() + 29, random_seed.begin() + 30);  // right-shift  
+	std::rotate(random_seed_pred.begin(), random_seed_pred.begin() + 29, random_seed_pred.begin() + 30);  // right-shift  
 
 	for (Int_t i=0; i < 30; i++) {
-	//cout << "index (scaler event): " << i << " random seed left-shifted: " << random_seed[i] << endl; 
+//	cout << "index (scaler event): " << i << " pred random seed shifted: " << random_seed_pred[i] << endl;
+//	cout << "index (scaler event): " << i << " act random seed shifted: " << random_seed_act[i] << endl;  
 	}
 
-	random_seed[0] = newbit;
-	bit1 = random_seed[0];	
+	if (i==1) {
+		for (Int_t i=0; i < 30; i++) {
+		random_seed_act.push_back(random_seed_pred[i]);
+//		cout << "i: " << i << " pred random seed: " << random_seed_pred[i] << endl;
+//		cout << "i: " << i << " act random seed: " << random_seed_act[i] << endl;
+		}
+	}
 
-	bit7 = random_seed[6];
-	bit28 = random_seed[27];
-	bit29 = random_seed[28];
-	bit30 = random_seed[29]; 
 
-	newbit = bit30 ^ bit29 ^ bit28 ^ bit7;
+	random_seed_pred[0] = newbit_pred;
+	bit1_pred = random_seed_pred[0];	
+
+	bit7_pred = random_seed_pred[6];
+	bit28_pred = random_seed_pred[27];
+	bit29_pred = random_seed_pred[28];
+	bit30_pred = random_seed_pred[29]; 
+
+	newbit_pred = bit30_pred ^ bit29_pred ^ bit28_pred ^ bit7_pred;
 	
-	if (newbit == 1 && pred_hel[0]== 1) {
+	if (newbit_pred == 1 && pred_hel[0]== 1) {
 	cout << "predicted helicity: " << pred_hel[0] << pred_hel[1] << pred_hel[2] << pred_hel[3] << endl;
 	}
 
-	else if (newbit == 1 && pred_hel[0]== 0) {
+	else if (newbit_pred == 1 && pred_hel[0]== 0) {
 	std::rotate(pred_hel.begin(), pred_hel.begin() + 2, pred_hel.end());
 	cout << "predicted helicity: " << pred_hel[0] << pred_hel[1] << pred_hel[2] << pred_hel[3] << endl;
 	}
 
-	else if (newbit == 0 && pred_hel[0]== 1 ) {
+	else if (newbit_pred == 0 && pred_hel[0]== 1 ) {
 	std::rotate(pred_hel.begin(), pred_hel.begin() + 2, pred_hel.end());
 	cout << "predicted helicity: " << pred_hel[0] << pred_hel[1] << pred_hel[2] << pred_hel[3] << endl;
 	}
 
-	else if (newbit == 0 && pred_hel[0]== 0 ) {
+	else if (newbit_pred == 0 && pred_hel[0]== 0 ) {
 	cout << "predicted helicity: " << pred_hel[0] << pred_hel[1] << pred_hel[2] << pred_hel[3] << endl;
 	}
 
@@ -413,7 +423,90 @@ if (DAQ_rep_hel_bank.size() >= 120) {
 	return 0;
 	}
 
-   }
+
+        }
+
+
+
+
+//	random_seed_act[0] = newbit_act;
+	bit1_act = random_seed_act[0];	
+
+	bit7_act = random_seed_act[6];
+	bit28_act = random_seed_act[27];
+	bit29_act = random_seed_act[28];
+	bit30_act = random_seed_act[29]; 
+
+	Int_t newbit_act = bit30_act ^ bit29_act ^ bit28_act ^ bit7_act;
+
+	
+	if (newbit_act == 1) {
+	Int_t next_quartet[4] = {1,0,0,1};
+	cout << "act helicity: " << next_quartet[0] << next_quartet[1] << next_quartet[2] << next_quartet[3] << endl;
+	for (Int_t i = 0; i < 4; i++) {
+	act_hel.push_back(next_quartet[i]);
+ 	}
+	}
+
+	else if (newbit_act ==0) {
+	Int_t next_quartet[4] = {0,1,1,0};
+	cout << "act helicity: " << next_quartet[0] << next_quartet[1] << next_quartet[2] << next_quartet[3] << endl;
+	for (Int_t i = 0; i < 4; i++) {
+	act_hel.push_back(next_quartet[i]);
+ 	}
+	}
+	
+	else {
+	return 0;
+	}
+
+
+
+	for (Int_t i = 0; i < nevents; i++) {
+
+	std::rotate(random_seed_act.begin(), random_seed_act.begin() + 29, random_seed_act.begin() + 30);  // right-shift
+
+	
+
+	random_seed_act[0] = newbit_act;
+	bit1_act = random_seed_act[0];	
+
+	bit7_act = random_seed_act[6];
+	bit28_act = random_seed_act[27];
+	bit29_act = random_seed_act[28];
+	bit30_act = random_seed_act[29]; 
+
+	newbit_act = bit30_act ^ bit29_act ^ bit28_act ^ bit7_act;
+
+
+
+	if (newbit_act == 1 && act_hel[0]== 1) {
+	cout << "actual helicity: " << act_hel[0] << act_hel[1] << act_hel[2] << act_hel[3] << endl;
+	}
+
+	else if (newbit_act == 1 && act_hel[0]== 0) {
+	std::rotate(act_hel.begin(), act_hel.begin() + 2, act_hel.end());
+	cout << "actual helicity: " << act_hel[0] << act_hel[1] << act_hel[2] << act_hel[3] << endl;
+	}
+
+	else if (newbit_act == 0 && act_hel[0]== 1 ) {
+	std::rotate(act_hel.begin(), act_hel.begin() + 2, act_hel.end());
+	cout << "actual helicity: " << act_hel[0] << act_hel[1] << act_hel[2] << act_hel[3] << endl;
+	}
+
+	else if (newbit_act == 0 && act_hel[0]== 0 ) {
+	cout << "actual helicity: " << act_hel[0] << act_hel[1] << act_hel[2] << act_hel[3] << endl;
+	}
+
+	
+	else {
+	return 0;
+	}
+
+
+	}
+
+//   }
 
 }
 

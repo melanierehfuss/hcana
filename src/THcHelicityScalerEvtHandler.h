@@ -79,18 +79,25 @@ private:
    std::vector <int> DAQ_rep_quad_phase_bank;
    std::vector <int> DAQ_pred_hel_bank; // running storage of DAQ predicted helicity values
    std::vector <int> DAQ_act_hel_bank; // running storage of DAQ actual helicity values
-   std::vector <Int_t> random_seed; // random seed for 30-bit (120 windows) shift-register
+   std::vector <Int_t> random_seed_pred; // random seed for 30-bit (120 windows) shift-register
+   std::vector <Int_t> random_seed_act; // random seed for 30-bit (120 windows) shift-register
    Int_t pos_accu_scaler;
    Int_t neg_accu_scaler;
    std::vector <int> actual_helicity; // actual helicity aligned with DAQ (beginning at the appropriate event)
    std::vector <int> positive_hel_scalers; // running storage of accumulated scalers (+ helicity) for each event
    std::vector <int> negative_hel_scalers; // running storage of accumulated scalers (- helicity) for each event
-   Int_t bit1;
-   Int_t bit7;
-   Int_t bit28;
-   Int_t bit29;
-   Int_t bit30;
-   Int_t newbit;
+   Int_t bit1_pred;
+   Int_t bit7_pred;
+   Int_t bit28_pred;
+   Int_t bit29_pred;
+   Int_t bit30_pred;
+   Int_t newbit_pred;
+   Int_t bit1_act;
+   Int_t bit7_act;
+   Int_t bit28_act;
+   Int_t bit29_act;
+   Int_t bit30_act;
+   Int_t newbit_act;
    Int_t next_quartet[4];
    std::vector <int> pred_hel;
    std::vector <int> act_hel;
